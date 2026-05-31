@@ -12,7 +12,10 @@ const Header = ({ text }) => {
 const StatisticLine = ({ stat, counter }) => {
   return (
     <>
-      <p>{stat}: {counter}</p>
+      <tr>
+        <td>{stat}</td>
+        <td>{counter}</td>
+      </tr>
     </>
   )
 }
@@ -32,13 +35,17 @@ const Statistics = ({ statsGood, statsNeutral, statsBad }) => {
   }
   return (
     <div>
-      <StatisticLine stat="Good" counter={statsGood} />
-      <StatisticLine stat="Neutral" counter={statsNeutral} />
-      <StatisticLine stat="Bad" counter={statsBad} />
+      <table>
+        <tbody>
+          <StatisticLine stat="Good" counter={statsGood} />
+          <StatisticLine stat="Neutral" counter={statsNeutral} />
+          <StatisticLine stat="Bad" counter={statsBad} />
 
-      <StatisticLine stat="All" counter={all}/>
-      <StatisticLine stat="Average" counter={average}/>
-      <StatisticLine stat="Positive" counter={positiveString}/>
+          <StatisticLine stat="All" counter={all}/>
+          <StatisticLine stat="Average" counter={average}/>
+          <StatisticLine stat="Positive" counter={positiveString}/>
+        </tbody>
+      </table>
     </div>
   )
 }
