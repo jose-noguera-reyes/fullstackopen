@@ -1,0 +1,29 @@
+h1 {
+  color: green;
+
+  font-style: italic;
+}
+
+li {
+  color: grey;
+  padding-top: 3px;
+  font-size: 15px;
+}
+
+.successNotification {
+  color: black;
+  padding-top: 5px;
+  font-size: 15px;
+  background-color: greenyellow;
+  border: 3px solid green;
+  margin-bottom: 10px;
+}
+
+.errorNotification {
+  color: black;
+  padding-top: 5px;
+  font-size: 15px;
+  background-color: pink;
+  border: 3px solid red;
+  margin-bottom: 10px;
+}

@@ -1,6 +1,7 @@
-import Filter from "./components/Filter"
-import PersonForm from "./components/PersonForm"
-import Persons from "./components/Persons"
+import Filter from './components/Filter'
+import Notification from './components/Notification'
+import PersonForm from './components/PersonForm'
+import Persons from './components/Persons'
 import { useState, useEffect } from 'react'
 import personsService from './services/persons'
 
@@ -9,6 +10,7 @@ const App = () => {
   const [newName, setNewName] = useState("")
   const [newNumber, setNewNumber] = useState("")
   const [newFilter, setNewFilter] = useState("")
+  const [newNotification, setNewNotification] = useState({ message: null, type: "" })
 
   useEffect(() => {
     console.log('effect')
@@ -41,12 +43,41 @@ const App = () => {
           .then(returnedPerson => {
             setPersons(persons.map(person => person.id !== nameAlreadyExists.id ? person : returnedPerson))
             setNewName("")
-            setNewNumber("") 
+            setNewNumber("")
+            setNewNotification({
+              message: `Phone number of ${returnedPerson.name} was updated successfully.`,
+              type: "successNotification"
+            })
+            setTimeout(() => {
+              setNewNotification({
+                message: null, type: ""
+              })
+            }, 5000)
+          })
+          .catch(error => {
+            setPersons(persons.filter(person => person.id !== nameAlreadyExists.id))
+            setNewNotification({
+              message: `Person ${nameAlreadyExists.name} was already removed from server.`,
+              type: "errorNotification"
+            })
+            setTimeout(() => {
+              setNewNotification({
+                message: null, type: ""
+              })
+            }, 5000)
           })
       }
     } else if (numberAlreadyExists) {
-      console.log(`Number ${newNumber} already exists`)
-      alert(`Number "${newNumber}" already exists`)
+      console.log(`Number ${newNumber} is already in use.`)
+      setNewNotification({
+              message: `Number ${newNumber} is already in use.`,
+              type: "errorNotification"
+            })
+            setTimeout(() => {
+              setNewNotification({
+                message: null, type: ""
+              })
+            }, 5000)
     } else {
       personsService
         .createPerson(personObject)
@@ -54,6 +85,15 @@ const App = () => {
           setPersons(persons.concat(returnedPerson))
           setNewName("")
           setNewNumber("") 
+          setNewNotification({
+              message: `Person ${returnedPerson.name} was added successfully.`,
+              type: "successNotification"
+            })
+            setTimeout(() => {
+              setNewNotification({
+                message: null, type: ""
+              })
+            }, 5000)
         })
     }
   }
@@ -74,8 +114,6 @@ const App = () => {
   }
 
   const handleDelete = (id) => {
-    const person = persons.find(p => p.id === id)
-    
     if (window.confirm(`Do you want to delete this person?`)) {
       personsService
         .deletePerson(id)
@@ -88,13 +126,15 @@ const App = () => {
 
   return (
     <div>
-      <h2>Phonebook</h2>
+      <h1>Phonebook</h1>
+      <Notification notification={newNotification}/>
+
       <Filter filterValue={newFilter} filterHandle={handleFilterChange} />
 
-      <h3>Add a new person</h3>
+      <h2>Add a new person</h2>
       <PersonForm submitForm={addPerson} nameValue={newName} nameHandle={handleNameChange} numberValue={newNumber} numberHandle={handleNumberChange}/>
 
-      <h3>Numbers</h3>
+      <h2>Numbers</h2>
       <Persons persons={personsToShow} deleteHandle={handleDelete}/>
     </div>
   )
