@@ -2,7 +2,7 @@ import Filter from "./components/Filter"
 import PersonForm from "./components/PersonForm"
 import Persons from "./components/Persons"
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personsService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -12,11 +12,10 @@ const App = () => {
 
   useEffect(() => {
     console.log('effect')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    personsService
+      .getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
 
@@ -26,8 +25,7 @@ const App = () => {
 
     const personObject = {
       name: newName,
-      number: newNumber,
-      id: persons.length + 1
+      number: newNumber
     }
 
     const nameAlreadyExists = persons.find((person) => person.name === newName)
@@ -35,14 +33,28 @@ const App = () => {
 
     if (nameAlreadyExists) {
       console.log(`Person named "${newName}" already exists`)
-      alert(`Person named "${newName}" already exists`)
+      if (window.confirm(`Person named "${newName}" already exists. Do you want to update their phone number?`)) {
+        const updatedPerson = {...nameAlreadyExists, number: newNumber}
+        
+        personsService
+          .updatePerson(nameAlreadyExists.id, updatedPerson)
+          .then(returnedPerson => {
+            setPersons(persons.map(person => person.id !== nameAlreadyExists.id ? person : returnedPerson))
+            setNewName("")
+            setNewNumber("") 
+          })
+      }
     } else if (numberAlreadyExists) {
-      console.log(`${newName} already exists`)
+      console.log(`Number ${newNumber} already exists`)
       alert(`Number "${newNumber}" already exists`)
     } else {
-      setPersons(persons.concat(personObject))
-      setNewName("")
-      setNewNumber("")
+      personsService
+        .createPerson(personObject)
+        .then(returnedPerson => {
+          setPersons(persons.concat(returnedPerson))
+          setNewName("")
+          setNewNumber("") 
+        })
     }
   }
 
@@ -61,6 +73,16 @@ const App = () => {
     setNewFilter(event.target.value)
   }
 
+  const handleDelete = (id) => {
+    const person = persons.find(p => p.id === id)
+    
+    if (window.confirm(`Do you want to delete this person?`)) {
+      personsService
+        .deletePerson(id)
+        .then(() => setPersons(persons.filter(p => p.id !== id)))
+    }
+  }
+
   const personsToShow = persons.filter(person =>
     person.name.toLowerCase().includes(newFilter.toLowerCase()))
 
@@ -73,7 +95,7 @@ const App = () => {
       <PersonForm submitForm={addPerson} nameValue={newName} nameHandle={handleNameChange} numberValue={newNumber} numberHandle={handleNumberChange}/>
 
       <h3>Numbers</h3>
-      <Persons persons={personsToShow}/>
+      <Persons persons={personsToShow} deleteHandle={handleDelete}/>
     </div>
   )
 }
