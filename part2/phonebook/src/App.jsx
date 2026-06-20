@@ -35,65 +35,96 @@ const App = () => {
 
     if (nameAlreadyExists) {
       console.log(`Person named "${newName}" already exists`)
+
       if (window.confirm(`Person named "${newName}" already exists. Do you want to update their phone number?`)) {
-        const updatedPerson = {...nameAlreadyExists, number: newNumber}
-        
+        const updatedPerson = { ...nameAlreadyExists, number: newNumber }
+
         personsService
           .updatePerson(nameAlreadyExists.id, updatedPerson)
           .then(returnedPerson => {
-            setPersons(persons.map(person => person.id !== nameAlreadyExists.id ? person : returnedPerson))
+            setPersons(persons.map(person =>
+              person.id !== nameAlreadyExists.id ? person : returnedPerson
+            ))
+
             setNewName("")
             setNewNumber("")
+
             setNewNotification({
               message: `Phone number of ${returnedPerson.name} was updated successfully.`,
               type: "successNotification"
             })
+
             setTimeout(() => {
               setNewNotification({
-                message: null, type: ""
+                message: null,
+                type: ""
               })
             }, 5000)
           })
           .catch(error => {
-            setPersons(persons.filter(person => person.id !== nameAlreadyExists.id))
+            console.log(error.response.data.error)
+
             setNewNotification({
-              message: `Person ${nameAlreadyExists.name} was already removed from server.`,
+              message: error.response.data.error,
               type: "errorNotification"
             })
+
             setTimeout(() => {
               setNewNotification({
-                message: null, type: ""
+                message: null,
+                type: ""
               })
             }, 5000)
           })
       }
     } else if (numberAlreadyExists) {
       console.log(`Number ${newNumber} is already in use.`)
+
       setNewNotification({
-              message: `Number ${newNumber} is already in use.`,
-              type: "errorNotification"
-            })
-            setTimeout(() => {
-              setNewNotification({
-                message: null, type: ""
-              })
-            }, 5000)
+        message: `Number ${newNumber} is already in use.`,
+        type: "errorNotification"
+      })
+
+      setTimeout(() => {
+        setNewNotification({
+          message: null,
+          type: ""
+        })
+      }, 5000)
     } else {
       personsService
         .createPerson(personObject)
         .then(returnedPerson => {
           setPersons(persons.concat(returnedPerson))
           setNewName("")
-          setNewNumber("") 
+          setNewNumber("")
+
           setNewNotification({
-              message: `Person ${returnedPerson.name} was added successfully.`,
-              type: "successNotification"
+            message: `Person ${returnedPerson.name} was added successfully.`,
+            type: "successNotification"
+          })
+
+          setTimeout(() => {
+            setNewNotification({
+              message: null,
+              type: ""
             })
-            setTimeout(() => {
-              setNewNotification({
-                message: null, type: ""
-              })
-            }, 5000)
+          }, 5000)
+        })
+        .catch(error => {
+          console.log(error.response.data.error)
+
+          setNewNotification({
+            message: error.response.data.error,
+            type: "errorNotification"
+          })
+
+          setTimeout(() => {
+            setNewNotification({
+              message: null,
+              type: ""
+            })
+          }, 5000)
         })
     }
   }
