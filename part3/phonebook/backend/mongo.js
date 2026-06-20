@@ -1,4 +1,4 @@
-require("node:dns/promises").setServers(["1.1.1.1", "8.8.8.8"])
+require('node:dns/promises').setServers(['1.1.1.1', '8.8.8.8'])
 const mongoose = require('mongoose')
 
 const password = process.argv[2]
@@ -8,17 +8,17 @@ const url = `mongodb+srv://fullstack:${password}@cluster0.tsecofw.mongodb.net/ph
 mongoose.set('strictQuery',false)
 
 mongoose
-    .connect(url, { family: 4})
-    .then(() => {
-        console.log('connected to MongoDB')
-    })
-    .catch(error => {
-        console.log(`error connecting to MongoDB: ${error}`)
-    })
+  .connect(url, { family: 4 })
+  .then(() => {
+    console.log('connected to MongoDB')
+  })
+  .catch(error => {
+    console.log(`error connecting to MongoDB: ${error}`)
+  })
 
 const personSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+  name: String,
+  number: String,
 })
 
 const Person = mongoose.model('Person', personSchema)
